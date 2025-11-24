@@ -147,5 +147,67 @@ namespace Lab5Tests
             // Перевіряємо, що в тексті міститься фраза про 200 статус
             Assert.That(resultText, Does.Contain("200 status code"), "Повідомлення не містить очікуваний код статусу 200.");
         }
+
+        /// <summary>
+        /// Тест 4.6: Перевірка функціоналу Drag and Drop.
+        /// Сценарій: Перетягування елемента A на місце елемента B за допомогою JS-скрипта (через особливості HTML5).
+        /// </summary>
+        [Test]
+        public void DragAndDropTest()
+        {
+            // Перехід на сторінку
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/drag_and_drop");
+
+            // Знаходимо колонки A та B
+            var columnA = driver.FindElement(By.Id("column-a"));
+            var columnB = driver.FindElement(By.Id("column-b"));
+
+            // Перевіряємо початковий стан (A зліва, B справа)
+            Assert.That(columnA.Text, Is.EqualTo("A"), "Початковий текст колонки A некоректний.");
+            Assert.That(columnB.Text, Is.EqualTo("B"), "Початковий текст колонки B некоректний.");
+
+            // ВИКОРИСТАННЯ JS EXECUTOR (Вирішення технічного ризику HTML5 D&D)
+            // Стандартний Actions.DragAndDrop тут не працює, тому емулюємо події браузера
+            var js = (IJavaScriptExecutor)driver;
+            string javaScript = @"
+                function createEvent(typeOfEvent) {
+                    var event = document.createEvent('CustomEvent');
+                    event.initCustomEvent(typeOfEvent, true, true, null);
+                    event.dataTransfer = {
+                        data: {},
+                        setData: function (key, value) { this.data[key] = value; },
+                        getData: function (key) { return this.data[key]; }
+                    };
+                    return event;
+                }
+                function dispatchEvent(element, event, transferData) {
+                    if (transferData !== undefined) {
+                        event.dataTransfer = transferData;
+                    }
+                    if (element.dispatchEvent) {
+                        element.dispatchEvent(event);
+                    } else if (element.fireEvent) {
+                        element.fireEvent('on' + event.type, event);
+                    }
+                }
+                function simulateHTML5DragAndDrop(element, destination) {
+                    var dragStartEvent = createEvent('dragstart');
+                    dispatchEvent(element, dragStartEvent);
+                    var dropEvent = createEvent('drop');
+                    dispatchEvent(destination, dropEvent, dragStartEvent.dataTransfer);
+                    var dragEndEvent = createEvent('dragend');
+                    dispatchEvent(element, dragEndEvent, dropEvent.dataTransfer);
+                }
+                simulateHTML5DragAndDrop(arguments[0], arguments[1]);
+            ";
+
+            // Виконуємо скрипт: перетягуємо A (arguments[0]) на B (arguments[1])
+            js.ExecuteScript(javaScript, columnA, columnB);
+
+            // Перевіряємо результат: текст у першій колонці (яка має ID column-a) має змінитися на "B"
+            // Це підтверджує, що елементи помінялися місцями (контентом)
+            Assert.That(columnA.Text, Is.EqualTo("B"), "Drag and Drop не спрацював: текст колонки A не змінився.");
+            Assert.That(columnB.Text, Is.EqualTo("A"), "Drag and Drop не спрацював: текст колонки B не змінився.");
+        }
     }
 }
