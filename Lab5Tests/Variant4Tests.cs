@@ -101,5 +101,30 @@ namespace Lab5Tests
             // Перевіряємо, що вибір змінився на другу опцію
             Assert.That(selectObject.SelectedOption.Text, Is.EqualTo("Option 2"), "Опція 2 не вибралась.");
         }
+
+        /// <summary>
+        /// Тест 4.4: Перевірка поля введення (Inputs).
+        /// Сценарій: Введення числового значення в поле input та перевірка його відображення.
+        /// </summary>
+        [Test]
+        public void InputsTest()
+        {
+            // Перехід на сторінку
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/inputs");
+
+            // Знаходимо поле input (воно там одне, тег input)
+            var inputField = driver.FindElement(By.TagName("input"));
+
+            // Вводимо число "12345"
+            // Важливо: для полів вводу краще спочатку викликати Clear(), щоб очистити попередні значення
+            inputField.Clear();
+            inputField.SendKeys("12345");
+
+            // Отримуємо поточне значення поля через атрибут "value"
+            string inputValue = inputField.GetAttribute("value") ?? string.Empty;
+
+            // Перевіряємо, що значення збереглося коректно
+            Assert.That(inputValue, Is.EqualTo("12345"), "Значення в полі input не відповідає введеному.");
+        }
     }
 }
