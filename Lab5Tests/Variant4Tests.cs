@@ -229,5 +229,29 @@ namespace Lab5Tests
             // Перевіряємо, що меню містить рівно 5 елементів (Contact, About, Home, Portfolio, Gallery)
             Assert.That(menuItems.Count, Is.EqualTo(5), "Кількість пунктів меню не відповідає очікуваній.");
         }
+
+        /// <summary>
+        /// Тест 4.8: Перевірка геолокації (Geolocation).
+        /// Сценарій: Натискання кнопки визначення місця та перевірка відображених координат.
+        /// Очікується, що координати співпадуть із тими, що ми задали в Setup (Лондон).
+        /// </summary>
+        [Test]
+        public void GeolocationTest()
+        {
+            // Перехід на сторінку
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/geolocation");
+
+            // Знаходимо кнопку "Where am I?" і клікаємо
+            driver.FindElement(By.XPath("//button[contains(text(),'Where am I')]")).Click();
+
+            // Чекаємо (неявно) появи координат і зчитуємо їх
+            var latText = driver.FindElement(By.Id("lat-value")).Text;
+            var longText = driver.FindElement(By.Id("long-value")).Text;
+
+            // Перевіряємо, що координати відповідають нашим "фейковим" налаштуванням (Setup)
+            // Це підтверджує, що механізм емуляції працює і реальна IP-адреса не використовується
+            Assert.That(latText, Is.EqualTo("51.5055"), "Широта не відповідає очікуваній (Mock).");
+            Assert.That(longText, Is.EqualTo("0.0754"), "Довгота не відповідає очікуваній (Mock).");
+        }
     }
 }
