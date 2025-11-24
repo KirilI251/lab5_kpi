@@ -209,5 +209,25 @@ namespace Lab5Tests
             Assert.That(columnA.Text, Is.EqualTo("B"), "Drag and Drop не спрацював: текст колонки A не змінився.");
             Assert.That(columnB.Text, Is.EqualTo("A"), "Drag and Drop не спрацював: текст колонки B не змінився.");
         }
+
+        /// <summary>
+        /// Тест 4.7: Перевірка змінного контенту (Shifting Content).
+        /// Сценарій: Перехід до прикладу меню та перевірка кількості елементів списку.
+        /// </summary>
+        [Test]
+        public void ShiftingContentTest()
+        {
+            // Перехід на головну сторінку розділу
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/shifting_content");
+
+            // Переходимо до прикладу 1: "Menu Element"
+            driver.FindElement(By.PartialLinkText("Example 1: Menu Element")).Click();
+
+            // Знаходимо всі пункти меню (теги <li> всередині <ul>)
+            var menuItems = driver.FindElements(By.CssSelector("ul li"));
+
+            // Перевіряємо, що меню містить рівно 5 елементів (Contact, About, Home, Portfolio, Gallery)
+            Assert.That(menuItems.Count, Is.EqualTo(5), "Кількість пунктів меню не відповідає очікуваній.");
+        }
     }
 }
