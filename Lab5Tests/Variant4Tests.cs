@@ -2,6 +2,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using System.Collections.ObjectModel;
 using OpenQA.Selenium.Support.UI;
+using System.Linq;
 
 namespace Lab5Tests
 {
@@ -252,6 +253,28 @@ namespace Lab5Tests
             // Це підтверджує, що механізм емуляції працює і реальна IP-адреса не використовується
             Assert.That(latText, Is.EqualTo("51.5055"), "Широта не відповідає очікуваній (Mock).");
             Assert.That(longText, Is.EqualTo("0.0754"), "Довгота не відповідає очікуваній (Mock).");
+        }
+
+        /// <summary>
+        /// Тест 4.9: Перевірка помилок JavaScript.
+        /// Сценарій: Завантаження сторінки та аналіз логів браузера на наявність критичних помилок.
+        /// </summary>
+        [Test]
+        public void JavascriptErrorsTest()
+        {
+            // Перехід на сторінку, яка генерує помилку при завантаженні
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/javascript_error");
+
+            // Отримуємо всі логи браузера типу "Browser"
+            var logs = driver.Manage().Logs.GetLog(LogType.Browser);
+
+            // Шукаємо лог, який містить текст специфічної помилки
+            // На цій сторінці помилка зазвичай звучить як "Cannot read properties of undefined"
+            bool errorFound = logs.Any(log => log.Message.Contains("Cannot read properties of undefined") || 
+                                              log.Message.Contains("Cannot read property 'xyz' of undefined"));
+
+            // Перевіряємо, що така помилка дійсно зафіксована
+            Assert.That(errorFound, Is.True, "Очікувана JS помилка не знайдена в логах браузера.");
         }
     }
 }
