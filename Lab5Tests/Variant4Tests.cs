@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using OpenQA.Selenium;
 using System.Collections.ObjectModel;
+using OpenQA.Selenium.Support.UI;
 
 namespace Lab5Tests
 {
@@ -68,6 +69,37 @@ namespace Lab5Tests
             
             // Перевіряємо, що він вимкнувся
             Assert.That(checkbox2.Selected, Is.False, "Чекбокс 2 не вимкнувся після кліку.");
+        }
+
+        /// <summary>
+        /// Тест 4.3: Перевірка роботи випадаючого списку (Dropdown).
+        /// Сценарій: Вибір опцій за текстом та перевірка поточного вибраного значення.
+        /// </summary>
+        [Test]
+        public void DropdownTest()
+        {
+            // Перехід на сторінку
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/dropdown");
+
+            // Знаходимо елемент <select> за його ID
+            var dropdownElement = driver.FindElement(By.Id("dropdown"));
+
+            // Створюємо об'єкт SelectElement для зручної роботи з опціями
+            var selectObject = new SelectElement(dropdownElement);
+
+            // --- Вибір першої опції ---
+            // Вибираємо опцію за відображуваним текстом "Option 1"
+            selectObject.SelectByText("Option 1");
+            
+            // Перевіряємо, що вибрана саме ця опція
+            Assert.That(selectObject.SelectedOption.Text, Is.EqualTo("Option 1"), "Опція 1 не вибралась.");
+
+            // --- Вибір другої опції ---
+            // Вибираємо опцію за текстом "Option 2"
+            selectObject.SelectByText("Option 2");
+
+            // Перевіряємо, що вибір змінився на другу опцію
+            Assert.That(selectObject.SelectedOption.Text, Is.EqualTo("Option 2"), "Опція 2 не вибралась.");
         }
     }
 }
