@@ -3,6 +3,7 @@ using OpenQA.Selenium;
 using System.Collections.ObjectModel;
 using OpenQA.Selenium.Support.UI;
 using System.Linq;
+using OpenQA.Selenium.Interactions;
 
 namespace Lab5Tests
 {
@@ -275,6 +276,46 @@ namespace Lab5Tests
 
             // Перевіряємо, що така помилка дійсно зафіксована
             Assert.That(errorFound, Is.True, "Очікувана JS помилка не знайдена в логах браузера.");
+        }
+
+        /// <summary>
+        /// Тест 4.10: Перевірка функції Exit Intent.
+        /// Сценарій: Емуляція руху миші та події виходу за межі вікна через JS.
+        /// </summary>
+        [Test]
+        public void ExitIntentTest()
+        {
+            // Перехід на сторінку
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/exit_intent");
+
+            // Активуємо сторінку. 
+            // Іноді скрипт exit-intent не спрацьовує, якщо миша не рухалася всередині вікна.
+            Actions action = new Actions(driver);
+            action.MoveByOffset(100, 100).Perform();
+
+            // Генеруємо подію mouseleave прицільно на тег <HTML>.
+            // Використовуємо clientY: 0, що означає верхню межу браузера.
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+            string exitScript = @"
+                var event = new MouseEvent('mouseleave', {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true,
+                    'clientY': 0
+                });
+                document.documentElement.dispatchEvent(event);
+            ";
+            
+            js.ExecuteScript(exitScript);
+
+            // Чекаємо на модальне вікно
+            var modal = driver.FindElement(By.Id("ouibounce-modal"));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+            
+            // Чекаємо поки стиль display зміниться (вікно стане видимим)
+            wait.Until(d => modal.Displayed);
+
+            Assert.That(modal.Displayed, Is.True, "Модальне вікно Exit Intent не з'явилося.");
         }
     }
 }
