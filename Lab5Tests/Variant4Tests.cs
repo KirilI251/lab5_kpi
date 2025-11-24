@@ -126,5 +126,26 @@ namespace Lab5Tests
             // Перевіряємо, що значення збереглося коректно
             Assert.That(inputValue, Is.EqualTo("12345"), "Значення в полі input не відповідає введеному.");
         }
+
+        /// <summary>
+        /// Тест 4.5: Перевірка кодів стану HTTP (Status Codes).
+        /// Сценарій: Перехід на сторінку, вибір коду 200 та перевірка повідомлення про успішний статус.
+        /// </summary>
+        [Test]
+        public void StatusCodesTest()
+        {
+            // Перехід на сторінку
+            driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/status_codes");
+
+            // Знаходимо посилання з текстом "200" і клікаємо по ньому
+            driver.FindElement(By.LinkText("200")).Click();
+
+            // Знаходимо параграф, де відображається результат (тег <p>)
+            // Текст виглядає приблизно так: "This page returned a 200 status code.\n\n..."
+            string resultText = driver.FindElement(By.CssSelector("div.example p")).Text;
+
+            // Перевіряємо, що в тексті міститься фраза про 200 статус
+            Assert.That(resultText, Does.Contain("200 status code"), "Повідомлення не містить очікуваний код статусу 200.");
+        }
     }
 }
